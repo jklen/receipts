@@ -33,3 +33,37 @@ shops <- c('Billa')
 #                           - dan (nepotrebujem)
 # - sposob platby (Hotovost, Platobna kar)
 # - na verifikaciu (sadzba dane - suma dane, SUCET)
+
+# ako to bude fungovat
+
+# sumar  1. - z novych blockov co este neboli spracovane
+#           - co uz boli spracovane
+#           - dohromady
+#        2. - celkovy / kategorie
+#           - podla mesiacov / kategorie
+#           - podla tyzdnov / kategorie
+#           - podla dni v tyzdni / kategorie
+#           - podla poctu dni ostavajucich do konca mesiaca / kategorie
+#           - kategorie
+#           - lokacia na mape
+#       3.  - porovnanie s minulym obdobim (rast/pokles)  - rok
+#                                                         - mesiac
+#                                                         - tyzden
+#                                                         - den v tyzdni
+#                                                         - pocet dni do konca mesiaca
+#       4.  - vsetky polozky podla kategorii, mnozstvo, cena, % v ramci kategorie, % celkovo
+#       5.  - sumar generovania reportu - pocet blockov, pocet poloziek, suma,
+#               celkovy pocet blockov, celkovy pocet poloziek, celkova suma, cas generovania reportu a trvanie
+# kategorie - sladkosti
+#           - ovocie
+#           - zelenina
+#           - pecivo
+#           - osobna drogeria
+#           - domacnost
+#           - maso
+#           - fajcenie
+#           - alkohol
+#           - zabava
+#           - oblecenie
+#           - doprava
+# 
