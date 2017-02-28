@@ -1,6 +1,7 @@
 
 library(tesseract)
 library(ggplot2)
+library(stringr)
 
 tesseract_info()
 engine <- tesseract('slk')
@@ -15,22 +16,22 @@ shops <- c('Billa')
 #                           - mnozstvo
 #                           - cena za jednotku
 #                           - cena za vsetky kusy
-#                           - druh dane
+#                           - 5. druh dane
 #                     - 2.  - nazov polozky (balene veci co su uz navazene)
 #                           - vaha/objem
 #                           - mnozstvo
 #                           - cena za jednotku
 #                           - cena za vsetky kusy
-#                           - druh dane
+#                           - 6. druh dane
 #                     - 3.  - nazov polozky (veci co sa vazia)
 #                           - vaha[kg]
 #                           - cena za kg
 #                           - cena za nakupene mnozstvo
-#                           - druh dane
+#                           - 5. druh dane
 #                     - 4.  - nazov zlavy (zaznam nad je 'ZLAVA NA POLOZKU'), pre polozku nad
 #                           - percento zlavy (nemusi sa nachadzat)
 #                           - suma zlavy za vsetky kusy nakupenej polozky
-#                           - dan (nepotrebujem)
+#                           - 4. dan (nepotrebujem) --- receipt8
 # - sposob platby (Hotovost, Platobna kar)
 # - na verifikaciu (sadzba dane - suma dane, SUCET)
 
@@ -66,4 +67,5 @@ shops <- c('Billa')
 #           - zabava
 #           - oblecenie
 #           - doprava
-# 
+#           - sport
+#           - ine
