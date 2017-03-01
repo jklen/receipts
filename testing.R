@@ -5,7 +5,8 @@ library(stringr)
 
 tesseract_info()
 engine <- tesseract('slk')
-path_receipts <- c('/home/user/Scanned stuff/Receipts/')
+path_receipts <- '/home/user/Scanned stuff/Receipts/'
+path_receipts2 <- 'C:/Users/IBM_ADMIN/Desktop/MY STUFF/Billa'
 shops <- c('Billa')
 
 
