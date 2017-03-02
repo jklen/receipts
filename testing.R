@@ -20,31 +20,35 @@ ocr_receipt_list <- str_split(ocr(image = paste(path_receipts, '/', list.files(p
 
 remove_un <- function(x){
   
- index_to_keep <- 5
- last_item_index <- grep('^([0|D|O]PH) ([[:alnum:]]{13})$', x) - 1 # index riadku poslednej polozky
- print(last_item_index)
+  x <- x[!(x == '')] # odstran empty string
+  index_to_keep <- 5 # piaty riadok ako prvy
+  x_rem_punct <- gsub('[[:punct:]]', replacement = '', x)
+  last_item_index <- grep('([0|D|O|L][P|F]H) ([[:alnum:]]{13})', x_rem_punct) - 1 # index riadku poslednej polozky
+                          # riadok pred 'DPH REKAPITULACIA'
+  print(last_item_index)
  
- # adresa prevadzky, datum a cas
+  # adresa prevadzky, datum a cas
  
  if (str_detect(x[5], '\\d{1,2},\\d{5}')){
    
    # ak je adresa rozdelena ciarkou v jednom riadku
    
-   index_to_keep[2] <-  6
-   index_to_keep[3:(last_item_index - 5)] <- 8:last_item_index 
-   
+   index_to_keep <- append(index_to_keep, 6)
+   index_to_keep <- append(index_to_keep, 8:last_item_index)
+
    
  } else {
    
    # ak je adresa v dvoch riadkoch
    
-   index_to_keep[2] <- 6
-   index_to_keep[3] <- 7
+   index_to_keep <- append(index_to_keep, 6:7)
+   index_to_keep <- append(index_to_keep, 9:last_item_index)
+
    
  }
  
- # polozky
- 
+ total_index <- grep('EUR', x) # DOROB - receipt130, storno polozky medzisucet - aj tam je EUR
+ index_to_keep <- append(index_to_keep, total_index)
  
  
  x <- x[index_to_keep]
