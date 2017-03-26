@@ -26,6 +26,36 @@ addres_whole <- function(x){
 
 }
 
+d_platba <- function(x){
+  
+  str_detect(x , 'P(l|1|ł)atba.{5,}EUR')
+  
+}
+
+d_sucet <- function(x){
+  
+  str_detect(x, '^.{0,3}S(U|Ú|ú)(C|Č|Ď|ć)ET.{5,}EUR')
+  
+}
+
+d_medzisucet <- function(x){
+  
+  str_detect(x, '^.{0,2}M(E|B)(D|O)Z(I|1)S(U|Ú|ú)(C|Č|Ď|ć)ET.{5,}EUR')
+  
+}
+
+d_discountMark <- function(x){
+  
+  str_detect(x, '^.{0,2}Z(L|Ľ|ĺ)AVA NA P(O|D|U)L(O|D|U)(Z|Ž)K(U|O).{0,16}$')
+  
+}
+
+d_stornoMark <- function(x){
+  
+  str_detect(x, '^.{0,3}(S|B)T(O|U|D)(R|B)N(O|U|D).{7,11}$')
+  
+}
+
 remove_un <- function(x){
   
   # removes unnecessary rows from receipt
@@ -71,11 +101,11 @@ remove_un <- function(x){
 receipt_list_entries <- lapply(ocr_receipt_list, remove_un)
 
 # vytvorit list s named vektor s kategoriami
-#   wholeAdress, alebo addressStreet a addressCity
+#   wholeAdress, alebo addressStreet a addressCity 
 #   dateTime
 #   1 - 3
 #   discountMark
-#   discountAmount (toto je celkova suma zlavy, aj ked je viacero kusov)
+#   discountEntry (toto je celkova suma zlavy, aj ked je viacero kusov)
 #   stornoMark
 #   stornoEntry
 #   subtotal
@@ -89,19 +119,73 @@ create_categories <- function(x){
     if (addres_whole(x[1])){
       
       names(x)[1] <- 'addressWhole'
+      names(x)[2] <- 'dateTime'
+      
+      i <- 3
       
     } else {
       
       names(x)[1] <- 'addressStreet'
       names(x)[2] <- 'addressCity'
+      names(x)[3] <- 'dateTime'
+      
+      i <- 4
       
     }
+  
+  for (entry in x[i:length(x)]){
+    
+    if (d_platba(entry)){
+      
+      names(x)[i] <- 'payment'
+      
+    } else {
+      
+      if (d_sucet(entry)){
+        
+        names(x)[i] <- 'total'
+        
+      } else {
+        
+        if (d_medzisucet(entry)){
+          
+          names(x)[i] <- 'subtotal'
+          
+        } else {
+          
+          if (d_discountMark(entry)){
+            
+            names(x)[i] <- 'discountMark'
+            names(x)[i + 1] <- 'discountEntry'
+            
+          } else {
+            
+            if (d_stornoMark(entry)){
+              
+              names(x)[i] <- 'stornoMark'
+              names(x)[i + 1] <- 'stornoEntry'
+              
+            }
+            
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+    i <- i + 1
+    
+  }
+  
+  
     
   return(x)
   
 }
 
-receipt_list_cats <- lapply(x, create_categories)
+receipt_list_cats <- lapply(receipt_list_entries, create_categories)
 
 # potrebujem
 # - prevadzka (ulica, cislo, mesto, smerove cislo)
