@@ -11,7 +11,7 @@ shops <- c('Billa')
 
 # create list of receipts separated by rows (vectors)
 
-ocr_receipt_list <- str_split(ocr(image = paste(path_receipts, '/', list.files(path = path_receipts), sep = ''), 
+ocr_receipt_list2 <- str_split(ocr(image = paste(path_receipts, '/', list.files(path = path_receipts), sep = ''), 
                          engine = engine), '\n')
 
 # pre kazdy vektor v liste, necham:
@@ -56,6 +56,12 @@ d_stornoMark <- function(x){
   
 }
 
+d_splitEntry <- function(x){
+  
+  str_length(x) < 15 # receipt194
+  
+}
+
 remove_un <- function(x){
   
   # removes unnecessary rows from receipt
@@ -66,7 +72,7 @@ remove_un <- function(x){
   x <- x[!(x == '')] # odstran empty string
   index_to_keep <- 5 # piaty riadok ako prvy
   x_rem_punct <- gsub('[[:punct:]]', replacement = '', x)
-  last_item_index <- grep('([0|D|O|L][P|F]H) ([[:alnum:]]{13})', x_rem_punct) - 1 # index riadku poslednej polozky
+  last_item_index <- grep('([0|D|O|L][P|F]H)\\s?([[:alnum:]]{13})', x_rem_punct) - 1 # index riadku poslednej polozky
                           # riadok pred 'DPH REKAPITULACIA'
   #print(last_item_index)
  
@@ -98,7 +104,7 @@ remove_un <- function(x){
 
 }
 
-receipt_list_entries <- lapply(ocr_receipt_list, remove_un)
+receipt_list_entries2 <- lapply(ocr_receipt_list2, remove_un)
 
 # vytvorit list s named vektor s kategoriami
 #   wholeAdress, alebo addressStreet a addressCity 
@@ -165,6 +171,27 @@ create_categories <- function(x){
               names(x)[i] <- 'stornoMark'
               names(x)[i + 1] <- 'stornoEntry'
               
+            } else {
+              
+              if (names(x)[i - 1] %in% c('discountMark', 'stornoMark')){
+                
+                i <- i + 1
+                next
+              
+              } else {
+              
+                if (d_splitEntry(entry)){
+                  
+                  names(x)[i] <- 'itemSplit2'
+                  names(x)[i - 1] <- 'itemSplit1'
+                  
+                } else {
+                  
+                  names(x)[i] <- 'item'
+                  
+                }
+              }
+              
             }
             
           }
@@ -185,7 +212,14 @@ create_categories <- function(x){
   
 }
 
-receipt_list_cats <- lapply(receipt_list_entries, create_categories)
+receipt_list_cats2 <- lapply(receipt_list_entries2, create_categories)
+
+# add filenames to list
+
+receipt_list_cats2 <- 
+  mapply(c, receipt_list_cats2, lapply(as.list(list.files(path = path_receipts)), 'names<-', 'receiptFile'))
+
+# polozka moze byt aj v dvoch riadkoch [39] - receipt194!!!!
 
 # potrebujem
 # - prevadzka (ulica, cislo, mesto, smerove cislo)
