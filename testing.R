@@ -6,7 +6,6 @@ library(stringr)
 tesseract_info()
 engine <- tesseract('slk')
 path_receipts <- '/home/user/Scanned stuff/Receipts/Billa'
-path_receipts2 <- 'C:/Users/IBM_ADMIN/Desktop/MY STUFF/Billa'
 shops <- c('Billa')
 
 # create list of receipts separated by rows (vectors)
@@ -74,6 +73,15 @@ remove_un <- function(x){
   x_rem_punct <- gsub('[[:punct:]]', replacement = '', x)
   last_item_index <- grep('([0|D|O|L][P|F]H)\\s?([[:alnum:]]{13})', x_rem_punct) - 1 # index riadku poslednej polozky
                           # riadok pred 'DPH REKAPITULACIA'
+  
+  # ak nenajde riadok 'DPH REKAPITULACIA'
+  
+  if (length(last_item_index) == 0){
+    
+    return(NULL)
+    
+  }
+  
   #print(last_item_index)
  
   # adresa prevadzky, datum a cas
@@ -216,9 +224,62 @@ receipt_list_cats2 <- lapply(receipt_list_entries2, create_categories)
 
 # add filenames to list
 
-receipt_list_cats2 <- 
+receipt_list_cats2 <-
   mapply(c, receipt_list_cats2, lapply(as.list(list.files(path = path_receipts)), 'names<-', 'receiptFile'))
 
+# format df
+#   id
+#   receiptFile
+#   dateTime
+#   streetName
+#   streetNumber
+#   cityName
+#   postcode
+#   itemName
+#   itemAmount (NA when unit == 'weighted')
+#   itemWeight
+#   unit (pieces, weighted)
+#   itemPricePerUnit
+#   itemPrice
+#   itemVAT
+
+e_dateTime <- function(x){
+  
+  row_dateTime <- x[names(x) == 'dateTime']
+  dateTime <- str_match(row_dateTime, '(\\d{2}\\.\\d{2}\\.\\d{4}) (\\d{2}:\\d{2}:\\d{2})')[1, 1]
+  #dateTime <- as.POSIXct(strptime(dateTime, '%d.%m.%Y %H:%M:%S'))
+  
+  # returns string
+  return(dateTime)
+  
+}
+
+e_address <- function(x){
+  
+  
+  if ('addressWhole' %in% names(x)){
+    
+    address <- str_match(x[names(x) == 'addressWhole'], 
+                            '[prevádzka|prev.]:\\s(.{8,15})\\s(.{1,5}),(\\d{5})\\s(.{5,15})')[1,2:5]
+    
+  } else {
+    
+    address <- c(str_match(x[names(x) == 'addressStreet'],
+                           'prevádzka:\\s(.{8,15})\\s(.{1,5})')[1, c(2,3)],
+                 str_match(x[names(x) == 'addressCity'],
+                           '(\\d{3}\\s\\d{2})\\s(.{5,15})')[1, c(2,3)])
+    
+  }
+  
+  names(address) <- c('streetName', 'streetNumber', 'postcode', 'cityName')
+  
+  return(address)
+  
+}
+
+
+# [2] - receipt104 - extrakt adresy streetNumber vytiahne 'r'
+# [59] - receipt3.jpg - ocr zle rozpozna mesto
 # polozka moze byt aj v dvoch riadkoch [39] - receipt194!!!!
 
 # potrebujem
